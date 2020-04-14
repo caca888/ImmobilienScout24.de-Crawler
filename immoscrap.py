@@ -27,10 +27,10 @@ if len(userinput_payment) > 0:
     userinput_payment = re.search("(?<=\=).*", userinput_payment).group()
 
 #define sub-sites# 
-site_list = ["/Wohnung-Miete", 
-             "/Haus-Miete",
-             "/Wohnung-Kauf", 
-             "/Haus-Kauf"]
+site_list = ["/wohnung-mieten", 
+             "/haus-mieten",
+             "/wohnung-kaufen", 
+             "/haus-kaufen"]
 
 #filter accordingly to user input#
 if "h" not in userinput_type:
@@ -46,7 +46,7 @@ if "b" not in userinput_payment:
     site_list = [x for x in site_list if not x.endswith("-Kauf")]
 
 #define top level url#
-domain="https://www.immobilienscout24.de/Suche/S-T"
+domain="https://www.immobilienscout24.de/Suche/"
 
 #initialize dataframe#
 immoscout_data = DataFrame()
@@ -61,7 +61,8 @@ def get_max(url):
     except Exception:
         print("Fehler beim Oeffnen der Website")
     try:
-        site_extract = BeautifulSoup(url.text, "lxml")
+        #site_extract = BeautifulSoup(url.text, "lxml")
+        site_extract = BeautifulSoup(url.text, "html.parser")
     except Exception:
         print("Fehler beim Einlesen in BeautifulSoup")
     try:
@@ -84,7 +85,8 @@ def get_data(url):
     except Exception:
         return None
     try:
-        site_extract = BeautifulSoup(url.text, "lxml")
+        #site_extract = BeautifulSoup(url.text, "lxml")
+        site_extract = BeautifulSoup(url.text, "html.parser")
         rawdata_extract = site_extract.find_all("div", {"class":"result-list-entry__data"})#extract every result box
     except AttributeError as e:
         return None
@@ -108,13 +110,13 @@ def get_data(url):
         except Exception:
             location.append(None)
             
-        if "/Wohnung" in url_raw:
+        if "/wohnung" in url_raw:
             immo_type.append("Wohnung")
-        elif "/Haus" in url_raw:
+        elif "/haus" in url_raw:
             immo_type.append("Haus")
-        if "-Miete" in url_raw:
+        if "-mieten" in url_raw:
             ownership.append("Miete")
-        elif "-Kauf" in url_raw:
+        elif "-kaufen" in url_raw:
             ownership.append("Kauf")
     immoscout_data = immoscout_data.append(DataFrame({"price":price, 
                                                   "size":size,
